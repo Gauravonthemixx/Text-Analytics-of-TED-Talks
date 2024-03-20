@@ -40,3 +40,6 @@
 
 * Kio Stark and Hans Rosling exhibit unique communication styles, as evident from the distinct sentiments associated with each speaker.
 * The analysis provides insights into how the choice of words and sentiments influences the tone and impact of the speeches.
+
+## Please go Through [Text Analytics of two TED Speakers- HLD.docx](https://github.com/Gauravonthemixx/Text-Analytics-of-TED-Talks/files/14669922/Text.Analytics.of.two.TED.Speakers-.HLD.docx) for more info 🔗
+
