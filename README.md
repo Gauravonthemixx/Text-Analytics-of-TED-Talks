@@ -11,3 +11,10 @@
 * Hans Rosling is a renowned statistician with Ted talks on “The Best Stats You’ve Ever Seen” , “Insights on HIV, In Stunning Data Visuals”, and “New Insights on Poverty”, from 2006–2009. All of his talks are presented with data and visual analyses and give mind-boggling insights on world issues like HIV and poverty. 
 
 * This report will perform a sentiment analysis on their speeches and investigate how their emotions and communication influence listeners, comparing the overall tone of speakers.
+
+## ⌛ Dataset:
+
+* The data for the TED talks is provided by the package dsEssex, and the library is included in the code of R. It has transcripts of different TED speakers that will be used for the sentiment analysis
+
+* Data is filtered using the filter function so that the selection of two assigned speakers can be made and is stored in the variable My_Data
+
