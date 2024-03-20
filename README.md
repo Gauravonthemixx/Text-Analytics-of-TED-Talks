@@ -18,3 +18,7 @@
 
 * Data is filtered using the filter function so that the selection of two assigned speakers can be made and is stored in the variable My_Data
 
+* The link to Kio Stark Ted Talk https://www.youtube.com/watch?v=rFpDK2KhAgw 🔗
+
+* The link to Hans Gosling Ted Talk https://www.youtube.com/watch?v=RUwS1uAdUcI 🔗
+
