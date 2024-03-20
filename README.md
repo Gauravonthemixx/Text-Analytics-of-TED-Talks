@@ -22,3 +22,21 @@
 
 * The link to Hans Gosling Ted Talk https://www.youtube.com/watch?v=RUwS1uAdUcI 🔗
 
+## :rocket: Findings:
+<img width="1504" alt="Screenshot 2024-03-19 at 16 33 51" src="https://github.com/Gauravonthemixx/Text-Analytics-of-TED-Talks/assets/91785440/b6eb54d3-cae9-407f-82e8-c9f1f60dbffc">
+
+<img width="1590" alt="Screenshot 2024-03-19 at 16 35 03" src="https://github.com/Gauravonthemixx/Text-Analytics-of-TED-Talks/assets/91785440/875c11a2-e905-4e0b-b13f-80b5c7639584">
+
+## Results: 
+### Word Choices:
+
+* Kio Stark emphasizes interaction with strangers, while Hans Rosling focuses on data-driven insights into global issues like HIV and poverty.
+* The most frequently used words differ between the two speakers, reflecting their distinct topics and communication styles.
+### Sentiment Analysis:
+
+* Kio Stark's speech is associated more with sentiments like anticipation, while Hans Rosling's speech is linked with sentiments like fear.
+* Both speakers predominantly use positive words, contributing to an overall positive tone in their speeches.
+### Communication Style:
+
+* Kio Stark and Hans Rosling exhibit unique communication styles, as evident from the distinct sentiments associated with each speaker.
+* The analysis provides insights into how the choice of words and sentiments influences the tone and impact of the speeches.
