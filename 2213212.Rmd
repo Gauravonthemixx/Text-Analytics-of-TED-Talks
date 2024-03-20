@@ -1,0 +1,182 @@
+---
+title: "MA331-Report: 2213212"
+author: "Gaurav"
+subtitle: TED Talks by Speaker Kio Stark and Speaker Hans Rosling
+output:
+  pdf_document: default
+  html_document: default
+  word_document: default
+---
+```{r setup, include=FALSE}
+### Don't delete this setup code chunk from your file
+knitr::opts_chunk$set(echo = FALSE)
+# , message = NULL, warning = FALSE, comment = NULL)  
+## DON'T ALTER THIS: this is to prevent printing the code or any unnecessary addition in your final "html" report file.
+
+# You can extend this list below to load all the packages required for your analyses:
+#====================================================================================
+library(dsEssex)
+library(tidyverse)
+library(tidytext)
+library(ggrepel)
+library(ggplot2)
+library(gridExtra)
+library(dplyr)
+library(pander)
+
+# load the 'ted_talks' data
+#=========================
+data(ted_talks)
+MyData <- ted_talks %>%
+  filter(speaker %in% c("Kio Stark", "Hans Rosling"))
+
+```
+## Introduction
+
+This report explores the analysis of speeches illustrated by renowned TED speakers Kio Stark and Hans Rosling. Kio Stark discusses the importance of interacting with strangers in her 2016 Ted talk, encouraging the audience to come out of their fear of strangers. Hans Rosling is a renowned statistician with Ted talks on "The Best Stats You've Ever Seen" , "Insights on HIV, In Stunning Data Visuals", and "New Insights on Poverty", from 2006–2009. All of his talks are presented with data and visual analyses and give mind-boggling insights on world issues like HIV and poverty. This report will perform a sentiment analysis on their speeches and investigate how their emotions and communication influence listeners, comparing the overall tone of speakers.
+
+## Methods
+<p style="text-align:justify">The data for the TED talks is provided by the package dsEssex, and the library is included in the code of R. It has transcripts of different TED speakers that will be used for the sentiment analysis. Data is filtered using the filter function so that the selection of two assigned speakers can be made and is stored in the variable My_Data. For better analysis, the transcripts are tokenized using unnest_tokens(), due to which each word takes up a new row. Data cleaning is an important step, and to remove uninteresting words, the get_stopwords() function is used. A count of all the words by speakers can be implemented using the count function, which will give the total number of occurences of words. The top 15 words are calculated and plotted for both speakers, and they are useful in demonstrating the word choices made by them. Also, the repetition of words is used to analyse the overall temperament of speeches.</p>
+```{r, echo= FALSE}
+#TOKENIZATION, to create tokens of data 
+talks_tidy <- MyData %>% unnest_tokens(word, text)
+```
+```{r, echo=FALSE, message=FALSE}
+# removing the uninteresting words from the text
+talks_tidy_filt <- talks_tidy %>%
+  anti_join(get_stopwords())
+```
+```{r, echo=FALSE}
+# this will generate a table which has count of all the words by Kio Stark and Hans Rosling
+Kio_Stark <- talks_tidy_filt %>%
+  filter(speaker == "Kio Stark") %>%
+  count(speaker, word, sort = TRUE)
+Hans_Rosling <- talks_tidy_filt %>%
+     filter(speaker == "Hans Rosling") %>%
+     count(speaker, word, sort = TRUE)
+```
+```{r, fig.width=12}
+# Plotting top 15 words of Kio Stark
+plot_Kio<-Kio_Stark%>%
+  slice_max(n, n = 15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n, word)) +ggtitle("Most Used Words By Kio Stark")+ ggplot2::geom_col(fill= "#1B4165")+theme(plot.title = element_text(hjust= 0.52))
+# Plotting top 15 words of Hans Rosling
+plot_Hans<-Hans_Rosling%>%
+  slice_max(n, n=15) %>%
+  mutate(word = reorder(word, n)) %>%
+  ggplot(aes(n,word)) +ggtitle("Most Used Words By Hans Rosling")+ ggplot2::geom_col(fill= "#F3BE4D")+theme(plot.title = element_text(hjust= 0.52))
+grid.arrange(plot_Kio, plot_Hans, ncol=2)
+```
+<p style="text-align:justify">The visualisation below is a scatter plot that demonstrates the most frequently used words by Kio Stark and Hans Rosling. The words closer to the line indicate a similar use of words.</p>
+```{r, echo=FALSE, message== FALSE, warning=FALSE, fig.width=14}
+#This chunk of code will generate a scatter plot which will show the common words used by Kio Stark and Hans Rosling.
+plot_Word<- bind_rows(Kio_Stark, Hans_Rosling) %>%
+  group_by(word) %>%
+  filter(sum(n) > 10) %>%
+  ungroup() %>%
+  pivot_wider(names_from = "speaker", values_from = "n", values_fill = 0) %>%
+  ggplot(aes(`Kio Stark`, `Hans Rosling`)) +
+  geom_abline(color = "brown", linewidth = 1.7, alpha = 0.8, lty = 3) +
+  geom_text_repel(aes(label = word), max.overlaps = 40) 
+  # coord_fixed()
+  plot_Word
+ 
+```
+<p style="text-align:justify"> The table for sentiments is obtained using the get.sentiments() function. The NRC lexicon library is used to detect sentiments. It assigns sentiment to each word, and the total count is calculated for both speakers. The table shows a summary of the sentiment distribution for two speakers and is used to determine the sentiment categories that are most closely connected to each speaker. The most common positive and negative sentiments are also extracted from the already calculated variable to specifically compare the overall tone of the speech.</p>
+
+
+
+# Results
+<p style="text-align: justify">Together with the odds ratio and log odds ratio for each sentiment category, we can also observe the frequency counts for each speaker for each sentiment category. The odds ratio is the likelihood that a specific sentiment category will be related with one speaker over another, while the log odds ratio is the odds ratio's natural logarithm.</p>
+
+<p style="text-align: justify">Several sentiment categories have positive log odds ratios, which means they are more strongly connected with one speaker than the other, as can be seen by looking at the log odds ratios. For instance, the log odds ratio for fear is 0.53, meaning that Hans Rosling is more strongly related with it. The opposite is true for several sentiment categories, which have negative log odds ratios, signifying a higher relation with the other speaker. For instance, the log odds ratio for anticipation is -0.31, meaning that it is more strongly linked to Kio Stark.</p>
+```{r, message=FALSE, warning=FALSE}
+#The NRC lexicon function is used to assign sentiments to words
+speaker_sentiments <- MyData %>%
+unnest_tokens(word, text) %>%
+anti_join(stop_words)%>%
+inner_join(get_sentiments("nrc"), by = "word") %>%
+count(speaker, sentiment) %>%
+pivot_wider(names_from = speaker, values_from = n, values_fill = 0)
+
+```
+```{r, message=FALSE, warning= FALSE, fig.width=14}
+
+# inner join is used to calculate a table of OR ratio and log OR ratio.
+  speaker_sentiments <- MyData %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)%>%
+  inner_join(get_sentiments("nrc"), by = "word") %>%
+  count(speaker, sentiment) %>%
+  pivot_wider(names_from = speaker, values_from = n, values_fill = 0)%>%
+  mutate(OR = compute_OR(speaker_sentiments$`Kio Stark`, speaker_sentiments$`Hans Rosling`,    correction = FALSE),log_OR = log(OR), sentiment = reorder(sentiment,log_OR))
+
+speaker_sentiments
+```
+<p style="text-align: justify">The bar graph below depicts the comparison of sentiments with log odds ratios for Kio Stark and Hans Rosling. It shows which sentiment is most likely to come into view for each speaker. It was concluded from the table above that the sentiment of anticipation is more likely to appear towards Kio Stark, and the sentiment of fear is linked with Hans Rosling. The ratio comparison graph also shows the exact same observations, along with other sentiments. The left side of the graph indicates the sentiments used by Kio Stark, and the right side shows the sentiments by Hans Rosling.</p>
+```{r,message=FALSE, warning= FALSE, fig.width=15}
+# Visualising the bar graph for sentiment and log Odds Ratio.
+speaker_sentiments <- MyData %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)%>%
+  inner_join(get_sentiments("nrc"), by = "word") %>%
+  count(speaker, sentiment) %>%
+  pivot_wider(names_from = speaker, values_from = n, values_fill = 0)%>%
+  mutate(OR =  compute_OR(speaker_sentiments$`Kio Stark`, speaker_sentiments$`Hans Rosling`, correction = FALSE),log_OR = log(OR), sentiment = reorder(sentiment, log_OR))%>%
+  ggplot(aes(sentiment, log_OR, fill = log_OR < 0)) +
+  geom_col(show.legend = FALSE) +
+  ylab("Log odds ratio") + ggtitle("The Relation of Sentiments") +
+  coord_flip() + 
+  scale_fill_manual(name = "", values = c("#FD9F3A", "#39AAB5"))
+
+speaker_sentiments
+```
+<p style="text-align: justify">The bar graph below shows the most common positive and negative words used by the speakers. The quantity and distribution of positive and negative words in a text are used to assess the tone of the content. In our results, there are more positive than negative words used in the text, which gives the text an overall positive tone. It can also be concluded that it has overall positive effect on the listener of these speeches.</p>
+```{r, message= FALSE, warning=FALSE}
+# Filtering sentiment using inner_join for positive words in transcripts
+positive_alpha <- MyData %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)%>%
+  inner_join(get_sentiments("nrc"), by = "word") %>%
+  filter(sentiment == "positive") %>%
+  count(word, sort = TRUE)
+
+```
+```{r, message= FALSE, warning=FALSE}
+# Filtering sentiment using inner_join for negative words in transcripts
+negative_alpha <- MyData %>%
+  unnest_tokens(word, text) %>%
+  anti_join(stop_words)%>%
+  inner_join(get_sentiments("nrc"), by = "word") %>%
+  filter(sentiment == "negative") %>%
+  count(word, sort = TRUE)
+
+```
+```{r, fig.width=16}
+# Visualising the text for positive sentiment by words
+plotfor_positive<-positive_alpha %>%
+  slice_max(n, n = 10) %>%
+  mutate(word = fct_reorder(word, n)) %>%
+  ggplot(aes(word, n, fi)) +
+  geom_col(fill= "#B2B530") +
+  coord_flip() +
+  xlab(NULL) +
+  ylab("Frequency") +
+  ggtitle("Most Common Positive Words")
+```
+```{r, fig.width=16}
+# Visualising the text for negative sentiment by words
+plotfor_negative<- negative_alpha %>%
+  slice_max(n, n = 10) %>%
+  mutate(word = fct_reorder(word, n)) %>%
+  ggplot(aes(word, n)) +
+  geom_col(fill = "#E92016") +
+  coord_flip() +
+  xlab(NULL) +
+  ylab("Frequency") +
+  ggtitle("Most Common Negative Words")
+# it is used to plot two graphs by columns
+grid.arrange(plotfor_positive,plotfor_negative, ncol=2)
+```
+<p style="text-align:justify">In our findings, it can be said that Kio Stark and Hans Rosling have a unique style of communicating, as some sentiments are distinctly related with one speaker over the other based on the sentiment and log odds ratios. The choice of more positive words than negative words has a positive impact on the listener. Thus, the overall tone is positively influenced by the use of more positive words. Nonetheless, this analysis provides useful insight about the way of communicating and the usage of words by the speakers.</p>
